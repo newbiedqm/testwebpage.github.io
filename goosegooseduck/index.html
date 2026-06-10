@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>鹅腿阿姨模拟器 - 今天卖什么腿</title>
+  <link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero-panel pixel-panel" aria-label="游戏标题">
+      <img class="hero-art" src="assets/hero.webp" alt="像素风校园夜摊主视觉" />
+      <div class="hero-overlay">
+        <p class="kicker">校园夜宵 · 经营叙事 · 像素选择题</p>
+        <h1>鹅腿阿姨模拟器</h1>
+        <p class="subtitle">《今天卖什么腿》</p>
+        <p class="hero-copy">
+          你要把小摊经营成校园传说，还是一场大型抽象行为艺术？
+        </p>
+        <div class="hero-actions">
+          <button id="new-game-btn" class="pixel-button primary" type="button">新开一局</button>
+          <button id="continue-btn" class="pixel-button secondary" type="button">继续存档</button>
+        </div>
+        <div class="layout-toggle" aria-label="显示模式">
+          <button id="layout-auto-btn" class="layout-option is-active" type="button" data-layout="auto">自动</button>
+          <button id="layout-mobile-btn" class="layout-option" type="button" data-layout="mobile">手机</button>
+          <button id="layout-desktop-btn" class="layout-option" type="button" data-layout="desktop">电脑</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard">
+      <aside class="stats-panel pixel-panel" aria-label="经营数值">
+        <div class="panel-title-row">
+          <h2>核心数值</h2>
+          <span id="seed-label" class="tiny-badge">SEED --</span>
+        </div>
+        <div id="visible-stats" class="stats-list"></div>
+      </aside>
+
+      <section class="game-panel pixel-panel" aria-live="polite">
+        <div class="day-strip">
+          <div>
+            <span class="label">DAY</span>
+            <strong id="day-label">1 / 30</strong>
+          </div>
+          <div>
+            <span class="label">时段</span>
+            <strong id="phase-label">早市</strong>
+          </div>
+          <div>
+            <span class="label">摊位</span>
+            <strong id="stall-label">白塔大学西南门</strong>
+          </div>
+        </div>
+
+        <article id="event-card" class="event-card">
+          <div class="scene-frame" aria-hidden="true">
+            <div id="scene-sprite" class="scene-sprite scene-fruit"></div>
+            <div class="scanline"></div>
+          </div>
+
+          <div class="event-copy">
+            <div id="event-tag" class="event-tag">开局</div>
+            <h2 id="event-title">准备出摊</h2>
+            <p id="event-text">
+              点击“新开一局”，开始你在白塔大学西南门的第一天。
+            </p>
+          </div>
+
+          <div id="choices" class="choices"></div>
+        </article>
+      </section>
+
+      <aside class="log-panel pixel-panel" aria-label="群聊和账本日志">
+        <div class="panel-title-row">
+          <h2>群聊 / 账本</h2>
+          <button id="mute-btn" class="mini-button" type="button">动效 ON</button>
+        </div>
+        <div id="log-list" class="log-list"></div>
+
+        <div class="divider"></div>
+
+        <div class="controls">
+          <button id="reset-btn" class="pixel-button secondary small" type="button">重置</button>
+          <button id="save-btn" class="pixel-button secondary small" type="button">保存</button>
+          <button id="help-btn" class="pixel-button secondary small" type="button">玩法</button>
+        </div>
+      </aside>
+    </section>
+
+    <section id="help-modal" class="modal-backdrop" hidden>
+      <div class="modal pixel-panel" role="dialog" aria-modal="true" aria-labelledby="help-title">
+        <h2 id="help-title">玩法</h2>
+        <p>每回合读一张事件卡，然后选择一个选项。界面只显示现金、信任、合规、流量和体力。</p>
+        <p>短期赚钱的选择通常会提高风险；透明和合规会慢一些，但更抗冲击。抽象整活也能赢，只是会赢得比较离谱。</p>
+        <p>键盘数字 1-4 可以快速选择。到第 30 天或触发早退条件后，会根据当前状态进入结局。</p>
+        <button id="close-help-btn" class="pixel-button primary" type="button">知道了</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
