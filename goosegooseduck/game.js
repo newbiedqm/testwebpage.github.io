@@ -567,6 +567,7 @@
       title: "学生催单",
       text: "群里 99+。有人问“姨，我的腿呢？”有人回“你的腿在路上”。第三个人说不要进行人身攻击。",
       repeatable: true,
+      maxRepeats: 1,
       choices: [
         { label: "老实按顺序解释", effects: { stamina: -5, trust: 5 }, log: "你解释完第 26 单，发现第 27 单又问了一遍。" },
         { label: "发统一公告", effects: { stamina: -2, trust: 1, compliance: 1 }, log: "公告很统一，理解不太统一。" },
@@ -763,6 +764,426 @@
         { label: "关闭 AI，人工回复", effects: { trust: 6, stamina: -6, capitalization: -4 }, log: "人类回复慢，但至少知道今晚还有几只。" },
         { label: "训练它识别库存", effects: { cash: -8, compliance: 3, capitalization: 7, trust: 2 }, flags: ["trainedAiAuntie"], log: "AI 学会了库存，也学会了说快到了。" },
         { label: "让它继续生成抽象公告", effects: { traffic: 8, absurdity: 14, trust: -5 }, flags: ["aiAuntie"], log: "公告越来越像诗，订单越来越像谜。" }
+      ]
+    },
+    {
+      id: "R023",
+      phase: 0,
+      scene: "supply",
+      tag: "早市随机",
+      title: "一次性餐盒断货",
+      text: "批发市场的餐盒卖空了。摊前还有半箱纸袋、一捆油纸，以及一位环保社团同学热切的眼神。",
+      choices: [
+        { label: "买贵一点的合规餐盒", effects: { cash: -9, compliance: 7, trust: 3 }, log: "餐盒贵了，但每一袋都能体面地走出校门。" },
+        { label: "改用油纸现场包", effects: { cash: 4, stamina: -7, trust: 5 }, log: "手工感上来了，你的手速也被迫上来了。" },
+        { label: "推出自带饭盒优惠", effects: { traffic: 4, trust: 6, compliance: 3, cash: -3 }, flags: ["bringBoxDiscount"], log: "环保社团转发了你，顺便纠正了你的垃圾分类。" }
+      ]
+    },
+    {
+      id: "R024",
+      phase: 0,
+      scene: "lecture",
+      tag: "早市随机",
+      title: "食品安全培训",
+      text: "街道通知下午有食品安全培训。讲义很厚，标题很硬，时间刚好压着你的备料窗口。",
+      choices: [
+        { label: "认真参加培训", effects: { compliance: 12, trust: 3, stamina: -5, cash: -4 }, flags: ["safetyTraining"], log: "你学会了三个新表格，也学会了表格之间的亲属关系。" },
+        { label: "让助手去听", effects: { compliance: 5, capitalization: 3, trust: -2 }, log: "助手带回了讲义，也带回了几句不完整的重点。" },
+        { label: "先备料，晚上补课件", effects: { cash: 8, compliance: -4, stamina: -4 }, log: "今晚卖得不少，但培训课件像未读论文一样躺在手机里。" }
+      ]
+    },
+    {
+      id: "R025",
+      phase: 0,
+      scene: "supply",
+      tag: "早市随机",
+      title: "供应商换了新标签",
+      text: "老赵发来一批新标签，字号很大，品名很清楚，唯一问题是每张都贴得有点歪。",
+      choices: [
+        { label: "重新贴一遍", effects: { compliance: 8, trust: 4, stamina: -7 }, log: "标签贴正后，世界看起来都没那么倾斜了。" },
+        { label: "歪就歪，信息清楚就行", effects: { compliance: 4, cash: 4, absurdity: 3 }, log: "学生说这叫手作感，监管说这叫还算能看。" },
+        { label: "让学生帮忙贴，送小串", effects: { trust: 7, stamina: 3, cash: -5, studentFilter: 4 }, log: "贴标签现场变成了小型团建。" }
+      ]
+    },
+    {
+      id: "R026",
+      phase: 0,
+      scene: "fruit",
+      tag: "早市随机",
+      title: "助手想请假",
+      text: "助手说今晚想请假去看演出。你看着订单量，又看着对方眼里的自由，烤炉突然显得很沉默。",
+      condition: (s) => hasFlag(s, "assistantReply") || hasFlag(s, "familyBranch") || s.day >= 10,
+      choices: [
+        { label: "批准，请临时工", effects: { cash: -10, trust: 2, stamina: -2, capitalization: 2 }, log: "临时工很努力，只是把第 17 单叫成了第 71 单。" },
+        { label: "自己顶上", effects: { cash: 6, trust: 4, stamina: -14 }, log: "你顶住了晚高峰，腰没完全顶住。" },
+        { label: "今晚限量，早点收摊", effects: { cash: -6, trust: 7, stamina: 8, traffic: -3 }, log: "少卖几单，换来一个正常人的晚上。" }
+      ]
+    },
+    {
+      id: "R027",
+      phase: 0,
+      scene: "night",
+      tag: "早市随机",
+      title: "校园跑封路",
+      text: "学校今晚办荧光夜跑，西南门前的路被临时封住。报名同学说这也是一种排队，只是速度更快。",
+      choices: [
+        { label: "移到终点附近卖", effects: { traffic: 12, cash: 10, stamina: -6, compliance: -2 }, log: "跑完的人比平时更饿，也更愿意相信热量守恒。" },
+        { label: "停在原地等封路结束", effects: { traffic: -7, compliance: 5, stamina: 4 }, log: "你等到了路，也错过了第一波胃。" },
+        { label: "推出“完赛补给腿”", effects: { traffic: 10, cash: 8, absurdity: 5 }, flags: ["finishLeg"], log: "有人为了补给腿多跑了一圈。" }
+      ]
+    },
+    {
+      id: "R028",
+      phase: 0,
+      scene: "supply",
+      tag: "早市随机",
+      title: "温度记录仪报警",
+      text: "冷藏箱里的温度记录仪突然报警。屏幕显示温度波动，声音像一只电子闹钟在进行道德谴责。",
+      condition: (s) => s.day >= 6,
+      choices: [
+        { label: "立刻换冰袋并记录", effects: { compliance: 10, trust: 3, cash: -6, stamina: -4 }, log: "你把波动写进记录表，也把心跳调回正常范围。" },
+        { label: "这批先不卖", effects: { cash: -18, trust: 8, compliance: 8 }, log: "损失很疼，但比解释食品问题便宜。" },
+        { label: "继续用，今晚烤透一点", effects: { cash: 12, compliance: -14, trust: -6, nameRealityGap: 4 }, log: "火候不是万能的，尤其不是表格的替代品。" }
+      ]
+    },
+    {
+      id: "R029",
+      phase: 0,
+      scene: "lecture",
+      tag: "早市随机",
+      title: "数学系要建模",
+      text: "数学系学生问你能不能提供每天销量数据。他们想研究“排队长度对幸福感的非线性影响”。",
+      choices: [
+        { label: "给匿名汇总数据", effects: { trust: 5, compliance: 4, traffic: 3 }, flags: ["anonymousData"], log: "数据脱敏后，连你都认不出哪天最累。" },
+        { label: "拒绝，数据只给账本看", effects: { trust: 2, compliance: 3, traffic: -2 }, log: "账本合上了，学生转去研究食堂窗口。" },
+        { label: "换一次免费排队优化", effects: { traffic: 8, absurdity: 7, compliance: -2 }, flags: ["studentModel"], log: "模型建议你在雨天卖得更多，像一个很会说废话的导师。" }
+      ]
+    },
+    {
+      id: "R030",
+      phase: 0,
+      scene: "supply",
+      tag: "早市随机",
+      title: "预制包厂家来谈合作",
+      text: "一家预制包厂家带着样品来找你，说可以让味道稳定、出餐更快，还能把你从烤炉前解放出来。",
+      condition: (s) => s.day >= 12,
+      choices: [
+        { label: "试小批量，但明示", effects: { cash: 10, compliance: 7, trust: 1, capitalization: 10 }, flags: ["prepackTrial"], log: "味道稳定得像模板，说明也写得像模板。" },
+        { label: "拒绝，坚持现烤", effects: { trust: 9, stamina: -8, capitalization: -5 }, log: "你保住了烟火气，也保住了烟。" },
+        { label: "悄悄混用提高效率", effects: { cash: 20, traffic: 6, trust: -8, nameRealityGap: 12, capitalization: 10 }, log: "速度快了，风险也快了。" }
+      ]
+    },
+    {
+      id: "R031",
+      phase: 0,
+      scene: "supply",
+      tag: "低概率突发",
+      title: "批发市场临时停电",
+      text: "批发市场突然停电，冷柜一片安静。摊主们站在走廊里，像等待判卷结果的学生。",
+      chance: 0.05,
+      condition: (s) => s.day >= 5,
+      choices: [
+        { label: "转去正规冷链仓补货", effects: { cash: -14, compliance: 12, trust: 5 }, log: "路远价高，但每一箱都带着清楚的来处。" },
+        { label: "今天少进货，限量卖", effects: { cash: -5, trust: 7, stamina: 4, traffic: -4 }, log: "限量公告一出，群里开始猜今晚有多限量。" },
+        { label: "抢低价现货", effects: { cash: 14, compliance: -16, nameRealityGap: 8 }, log: "价格很美，风险也很有存在感。" }
+      ]
+    },
+    {
+      id: "R032",
+      phase: 0,
+      scene: "ending",
+      tag: "低概率突发",
+      title: "一箱货多出一只金色小鸭挂件",
+      text: "开箱时，你发现里面多了一只金色小鸭挂件。老赵说没见过，学生说这是抽卡出金。",
+      chance: 0.04,
+      choices: [
+        { label: "挂在摊头当吉祥物", effects: { traffic: 8, absurdity: 8, trust: 2 }, flags: ["goldDuckCharm"], log: "金色挂件在灯下发亮，队伍里的玄学浓度升高了。" },
+        { label: "退回供应商，别乱收东西", effects: { compliance: 6, trust: 3, absurdity: -2 }, log: "你拒绝了玄学，也拒绝了一个潜在的周边。" },
+        { label: "群里抽奖送出", effects: { traffic: 10, cash: -2, studentFilter: 6 }, log: "中奖同学宣布这学期绩点有救了。" }
+      ]
+    },
+    {
+      id: "R033",
+      phase: 1,
+      scene: "night",
+      tag: "夜摊随机",
+      title: "社团团购",
+      text: "戏剧社一次性订 28 只，说今晚排练到很晚，主角可以迟到，烤腿不能。",
+      choices: [
+        { label: "接单，要求提前付款", effects: { cash: 18, trust: 3, stamina: -10 }, log: "团购单让账本开心，也让烤炉加班。" },
+        { label: "只接一半，保证散客", effects: { cash: 8, trust: 8, traffic: 2, stamina: -5 }, log: "戏剧社少吃几只，队伍少骂几句。" },
+        { label: "赞助社团，换节目单广告", effects: { cash: -8, traffic: 14, studentFilter: 5 }, log: "节目单上写着鸣谢林姨，旁边的演员像在闻香味。" }
+      ]
+    },
+    {
+      id: "R034",
+      phase: 1,
+      scene: "night",
+      tag: "夜摊随机",
+      title: "排队号被倒卖",
+      text: "有人把 12 号排队号挂到二手群，标题写“校门口稀缺资产，诚心出”。",
+      condition: (s) => s.stats.traffic >= 50,
+      choices: [
+        { label: "现场实名核号", effects: { trust: 8, compliance: 4, stamina: -6, traffic: -2 }, log: "黄牛没了，队伍慢了，但大家觉得公平了。" },
+        { label: "取消今晚排队号", effects: { trust: -4, traffic: -6, absurdity: 4 }, log: "公平回来了，秩序走丢了。" },
+        { label: "让学生自治举报", effects: { trust: 6, studentFilter: 5, stamina: 2 }, log: "群里出现了临时纪律委员，语气比辅导员还像辅导员。" }
+      ]
+    },
+    {
+      id: "R035",
+      phase: 1,
+      scene: "night",
+      tag: "夜摊随机",
+      title: "移动支付码失灵",
+      text: "付款码突然打不开。队伍里有人举着手机，有人开始翻现金，还有人问能不能用校园卡赊账。",
+      choices: [
+        { label: "手写欠条，老客先拿", effects: { trust: 8, cash: -10, studentFilter: 5 }, flags: ["iouNight"], log: "欠条像一张张小小的信任合约。" },
+        { label: "只收现金，没现金就等", effects: { cash: -4, trust: -5, compliance: 2 }, log: "纸币突然变得像古董。" },
+        { label: "让隔壁摊代收再结算", effects: { cash: 6, trust: 2, compliance: -4 }, log: "隔壁摊成了临时金融机构。" }
+      ]
+    },
+    {
+      id: "R036",
+      phase: 1,
+      scene: "night",
+      tag: "夜摊随机",
+      title: "隔壁摊投诉油烟",
+      text: "隔壁卖柠檬茶的大哥说你的烤炉太香，导致大家买茶时都在想腿。",
+      choices: [
+        { label: "调整炉位并加挡板", effects: { compliance: 7, trust: 3, cash: -7 }, log: "油烟少了，大哥的表情也没那么酸了。" },
+        { label: "合作卖套餐", effects: { cash: 12, traffic: 8, capitalization: 4 }, flags: ["teaCombo"], log: "腿配柠檬茶，校门口出现了新的热量闭环。" },
+        { label: "保持原位，靠实力竞争", effects: { cash: 8, trust: -4, compliance: -6 }, log: "你赢了销量，输了邻里关系。" }
+      ]
+    },
+    {
+      id: "R037",
+      phase: 1,
+      scene: "night",
+      tag: "夜摊随机",
+      title: "导师组会加餐",
+      text: "一位老师说今晚组会开到十点，想买几只给学生。他补充：不要发票，发票会提醒大家这也是工作。",
+      condition: (s) => s.day >= 4,
+      choices: [
+        { label: "按普通订单排队", effects: { trust: 6, compliance: 3 }, log: "组会没有特权，只有饥饿。" },
+        { label: "给组会打包优先走", effects: { cash: 10, trust: -6, studentFilter: -2 }, log: "学生们看着老师插队，表情像看见 deadline 提前。" },
+        { label: "送一份小菜，祝早散会", effects: { cash: -3, trust: 5, traffic: 3 }, log: "这份祝福没有立刻生效，但大家心领了。" }
+      ]
+    },
+    {
+      id: "R038",
+      phase: 1,
+      scene: "night",
+      tag: "夜摊随机",
+      title: "有人要求低盐低辣",
+      text: "健身社同学认真问：能不能低盐低辣高蛋白？后面的人小声说：那还算夜宵吗？",
+      choices: [
+        { label: "做一版清爽口味", effects: { traffic: 5, trust: 5, stamina: -4 }, flags: ["lightFlavor"], log: "清爽口味卖得不多，但评论区很有自律感。" },
+        { label: "坚持原味", effects: { cash: 5, trust: -2, stamina: 2 }, log: "原味继续原味，自律继续自律。" },
+        { label: "推出“心理低卡版”", effects: { traffic: 9, absurdity: 9, trust: -3 }, log: "热量没有变，命名很努力。" }
+      ]
+    },
+    {
+      id: "R039",
+      phase: 1,
+      scene: "crisis",
+      tag: "低概率突发",
+      title: "消防演练临时开始",
+      text: "校园广播突然响起消防演练通知。队伍散开，烤炉熄火，保安用眼神提醒你：这不是演习里的演习。",
+      chance: 0.045,
+      condition: (s) => s.day >= 6,
+      choices: [
+        { label: "立刻熄火撤到安全区", effects: { compliance: 12, trust: 5, cash: -8 }, log: "你少卖了一轮，但安全这件事不适合讨价还价。" },
+        { label: "打包半成品，演练后继续", effects: { cash: 4, compliance: -4, stamina: -5 }, log: "半成品很尴尬，像写到一半的论文。" },
+        { label: "给保安送水协助疏散", effects: { trust: 8, compliance: 8, cash: -4 }, log: "保安点点头，粉笔线今天对你温柔了一点。" }
+      ]
+    },
+    {
+      id: "R040",
+      phase: 1,
+      scene: "night",
+      tag: "低概率突发",
+      title: "短暂全校停电",
+      text: "校园突然黑了三秒，随后路灯重启。学生们发出整齐的“哇”，你的烤炉发出不太整齐的“咔”。",
+      chance: 0.035,
+      condition: (s) => s.day >= 8,
+      choices: [
+        { label: "暂停检查设备", effects: { compliance: 8, trust: 4, cash: -6 }, log: "你等了五分钟，换来设备没有情绪。" },
+        { label: "点应急灯继续卖", effects: { cash: 10, traffic: 6, stamina: -6, compliance: -3 }, log: "应急灯下的烤腿显得很有末日感。" },
+        { label: "宣布今晚是像素夜市", effects: { traffic: 12, absurdity: 10, trust: 2 }, log: "黑暗把一切都变成了低分辨率。" }
+      ]
+    },
+    {
+      id: "R041",
+      phase: 1,
+      scene: "crisis",
+      tag: "低概率突发",
+      title: "无人机悬停拍摄",
+      text: "一架无人机停在摊位上方，镜头对着烤炉。没人知道是谁的，但大家都知道它很想要流量。",
+      chance: 0.04,
+      condition: (s) => s.stats.traffic >= 45,
+      choices: [
+        { label: "请保安处理", effects: { compliance: 6, trust: 4, traffic: -2 }, log: "无人机飞走了，队伍恢复了人类尺度。" },
+        { label: "对镜头展示菜单标签", effects: { compliance: 7, traffic: 8, trust: 3 }, log: "镜头拍到了标签，也拍到了你努力不翻白眼。" },
+        { label: "挥手营业，顺势整活", effects: { traffic: 16, absurdity: 9, trust: -3 }, log: "视频爆了，评论区开始逐帧分析烤炉。" }
+      ]
+    },
+    {
+      id: "R042",
+      phase: 2,
+      scene: "crisis",
+      tag: "群聊随机",
+      title: "退款表格太复杂",
+      text: "有同学做了退款登记表，字段包括姓名、订单、情绪、想退款还是想被安慰。你看着表格陷入沉思。",
+      condition: (s) => s.stats.trust <= 50 || s.stats.nameRealityGap >= 25,
+      choices: [
+        { label: "简化退款流程", effects: { cash: -12, trust: 12, compliance: 5 }, log: "退款变快了，怨气也变短了。" },
+        { label: "逐项核对，慢慢处理", effects: { cash: -5, trust: 3, stamina: -8, compliance: 3 }, log: "你处理得很认真，也处理到眼睛发直。" },
+        { label: "先发安抚公告", effects: { trust: -3, traffic: 6, studentFilter: 5 }, log: "公告写得很暖，但表格还在那里。" }
+      ]
+    },
+    {
+      id: "R043",
+      phase: 2,
+      scene: "lecture",
+      tag: "群聊随机",
+      title: "学生做了民间百科",
+      text: "有人给你建了一个“林姨烤腿百科”，页面里有历史沿革、价格表、排队术语和三条待考证传说。",
+      condition: (s) => s.stats.traffic >= 40,
+      choices: [
+        { label: "补充准确信息", effects: { trust: 8, compliance: 5, nameRealityGap: -6 }, flags: ["wikiCorrected"], log: "百科变得没那么神秘，但更像档案了。" },
+        { label: "放任大家创作", effects: { traffic: 8, absurdity: 8, studentFilter: 6 }, log: "百科越来越像史诗，考证越来越像玄学。" },
+        { label: "请求删除价格历史", effects: { trust: -6, traffic: 5, nameRealityGap: 4 }, log: "越想删，大家越想截图。" }
+      ]
+    },
+    {
+      id: "R044",
+      phase: 2,
+      scene: "crisis",
+      tag: "群聊随机",
+      title: "老语音被翻出来",
+      text: "一段很久以前的群语音被转发出来。你的口音很重，背景很吵，最清楚的是一句“今天不一定有”。",
+      condition: (s) => s.day >= 12,
+      choices: [
+        { label: "解释当时是货源不稳", effects: { trust: 6, nameRealityGap: -4, stamina: -2 }, log: "你把旧话放回旧背景里，大家终于不只听一句。" },
+        { label: "承认那时口径混乱", effects: { trust: 9, compliance: 3, traffic: -2 }, log: "承认混乱很难，但比假装整齐容易。" },
+        { label: "做成怀旧铃声", effects: { traffic: 10, absurdity: 12, trust: -3 }, flags: ["voiceMeme"], log: "铃声火了，你的解释没那么火。" }
+      ]
+    },
+    {
+      id: "R045",
+      phase: 2,
+      scene: "crisis",
+      tag: "群聊随机",
+      title: "论坛投票开了",
+      text: "论坛有人发起投票：你最在意的是味道、价格、原料、还是阿姨的回复速度？四个选项都在吵。",
+      choices: [
+        { label: "按投票结果调整菜单", effects: { trust: 6, traffic: 4, stamina: -5 }, log: "民主让菜单更复杂，也让你更忙。" },
+        { label: "发起官方问卷", effects: { compliance: 4, trust: 5, traffic: 2 }, log: "问卷多了一个问题：你是否愿意少问几个问题。" },
+        { label: "不参与，让大家聊", effects: { traffic: 5, trust: -2, stamina: 3 }, log: "讨论自己转了起来，像一个不用加炭的烤炉。" }
+      ]
+    },
+    {
+      id: "R046",
+      phase: 2,
+      scene: "ending",
+      tag: "群聊随机",
+      title: "毕业照邀请",
+      text: "一群毕业生问你能不能出现在毕业照角落。他们说四年里见导师不多，见你的队伍很多。",
+      condition: (s) => s.stats.trust >= 55 && s.day >= 18,
+      choices: [
+        { label: "去拍照，晚点出摊", effects: { trust: 10, studentFilter: 8, cash: -6 }, log: "照片里你站在边上，却像很多人的校园坐标。" },
+        { label: "送他们一张摊位合照", effects: { trust: 6, traffic: 4, stamina: -3 }, log: "合照很普通，但每个人都笑得像抢到号。" },
+        { label: "婉拒，今晚订单太多", effects: { cash: 8, trust: -3, stamina: -4 }, log: "他们理解了，只是群里少了一张很可能会火的照片。" }
+      ]
+    },
+    {
+      id: "R047",
+      phase: 2,
+      scene: "crisis",
+      tag: "低概率突发",
+      title: "平台评分突然清零",
+      text: "外卖平台系统维护，你的评分短暂显示为 0.0。群里开始截图，平台客服说这是正常波动。",
+      chance: 0.035,
+      condition: (s) => hasFlag(s, "standardPack") || hasFlag(s, "miniProgram") || s.stats.capitalization >= 35,
+      choices: [
+        { label: "贴出平台维护说明", effects: { trust: 6, compliance: 4, traffic: -2 }, log: "说明不有趣，但有用。" },
+        { label: "发公告自嘲“归零重开”", effects: { traffic: 10, absurdity: 8, trust: 2 }, log: "大家笑了，平台没笑。" },
+        { label: "找客服加急恢复", effects: { stamina: -7, trust: 4, capitalization: 2 }, log: "客服排队系统让你理解了顾客。" }
+      ]
+    },
+    {
+      id: "R048",
+      phase: 2,
+      scene: "lecture",
+      tag: "低概率突发",
+      title: "匿名美食评论家发帖",
+      text: "一篇长评突然出现在本地论坛：火候、香料、排队情绪都写得很细，最后一句是“标签仍需更清楚”。",
+      chance: 0.03,
+      condition: (s) => s.stats.traffic >= 50,
+      choices: [
+        { label: "按建议改菜单", effects: { trust: 8, compliance: 6, traffic: 3, nameRealityGap: -8 }, log: "评论家没再出现，但菜单确实更清楚了。" },
+        { label: "只转发夸味道的段落", effects: { traffic: 10, trust: -5, nameRealityGap: 5 }, log: "截取很会传播，也很会留下话柄。" },
+        { label: "邀请对方现场复评", effects: { traffic: 8, trust: 4, stamina: -4 }, log: "大家开始猜评论家是不是排在第 23 号。" }
+      ]
+    },
+    {
+      id: "R049",
+      phase: 2,
+      scene: "ending",
+      tag: "低概率突发",
+      title: "流星雨夜",
+      text: "深夜，学生说今晚有流星雨。队伍没有散，大家一边等腿一边抬头，像在等两个愿望同时兑现。",
+      chance: 0.025,
+      condition: (s) => s.day >= 10,
+      choices: [
+        { label: "暂停十分钟一起看", effects: { trust: 10, studentFilter: 8, cash: -5, stamina: 4 }, log: "流星很短，队伍很长，但那十分钟没人催单。" },
+        { label: "继续出餐，别耽误队伍", effects: { cash: 8, trust: 2, stamina: -4 }, log: "愿望从天上划过，你把第 18 单递了出去。" },
+        { label: "推出“许愿加辣”", effects: { traffic: 12, absurdity: 9, trust: -1 }, log: "没有证据表明加辣能提高许愿成功率，但群里愿意相信。" }
+      ]
+    },
+    {
+      id: "R050",
+      phase: 0,
+      scene: "supply",
+      tag: "低概率突发",
+      title: "抽检车提前到",
+      text: "你还没出摊，抽检车先到了。对方说今天只是随机检查，你发现随机这个词比排队更刺激。",
+      chance: 0.025,
+      condition: (s) => s.day >= 16,
+      choices: [
+        { label: "配合检查，顺便学习流程", effects: { compliance: 14, trust: 5, cash: -6 }, flags: ["randomInspection"], log: "检查比想象中平静，前提是票据真的在。" },
+        { label: "暂停备料，先整理票据", effects: { compliance: 8, cash: -10, stamina: -3 }, log: "你翻出每一张单据，像翻出一段经营史。" },
+        { label: "让助手先接待", effects: { trust: -5, compliance: -6, stamina: 3, nameRealityGap: 4 }, log: "助手又解释了很多，解释本身成了风险。" }
+      ]
+    },
+    {
+      id: "R051",
+      phase: 1,
+      scene: "night",
+      tag: "低概率突发",
+      title: "校友捐了一台新烤炉",
+      text: "一位校友说自己当年排过你的队，现在想捐一台新烤炉。烤炉崭新得像还没经历社会。",
+      chance: 0.02,
+      condition: (s) => s.stats.trust >= 60 && s.day >= 12,
+      choices: [
+        { label: "接受并公开来源", effects: { cash: 18, trust: 7, compliance: 4 }, flags: ["donatedGrill"], log: "新烤炉上岗，群里开始怀念旧烤炉的脾气。" },
+        { label: "婉拒，避免人情压力", effects: { trust: 5, capitalization: -4, stamina: -3 }, log: "校友有点遗憾，但尊重你的边界。" },
+        { label: "改成公益夜宵基金", effects: { cash: 8, trust: 10, traffic: 6, stamina: -5 }, log: "几位困难学生收到免费券，群里安静了一会儿。" }
+      ]
+    },
+    {
+      id: "R052",
+      phase: 2,
+      scene: "ending",
+      tag: "低概率突发",
+      title: "国际禽类会议误邀你",
+      text: "邮箱里来了一封英文邀请，主题是国际禽类产业会议。对方显然误会了你，但误会得非常正式。",
+      chance: 0.015,
+      condition: (s) => s.stats.absurdity >= 45 || hasFlag(s, "englishMeme"),
+      choices: [
+        { label: "礼貌拒绝，继续出摊", effects: { trust: 3, stamina: 4, absurdity: 2 }, log: "你关掉邮箱，烤炉比国际会议更需要你。" },
+        { label: "远程参会讲校园夜宵", effects: { traffic: 12, absurdity: 14, stamina: -6 }, flags: ["poultryConference"], log: "同传沉默了两秒，然后努力翻译“姨知道你饿了”。" },
+        { label: "把邀请截图发群里", effects: { traffic: 10, studentFilter: 5, absurdity: 10 }, log: "群里一致认为你的事业已经走向国际化。" }
       ]
     }
   ];
@@ -963,6 +1384,7 @@
       stats: { ...INITIAL_STATS },
       flags: [],
       seenEvents: [],
+      eventCounts: {},
       log: [
         {
           day: 1,
@@ -1022,6 +1444,11 @@
     return state.seenEvents.indexOf(event.id) !== -1;
   }
 
+  function eventCount(event) {
+    state.eventCounts = state.eventCounts || {};
+    return state.eventCounts[event.id] || 0;
+  }
+
   function canUseEvent(event) {
     if (event.schedule) {
       const sameDay = event.schedule.day === state.day;
@@ -1037,7 +1464,29 @@
       return false;
     }
 
+    if (event.repeatable && event.maxRepeats && eventCount(event) >= event.maxRepeats) {
+      return false;
+    }
+
     return !event.condition || event.condition(state);
+  }
+
+  function chanceAllows(event) {
+    return !event.chance || random() < event.chance;
+  }
+
+  function weightedPick(pool) {
+    const total = pool.reduce((sum, event) => sum + (event.weight || 1), 0);
+    let cursor = random() * total;
+
+    for (const event of pool) {
+      cursor -= event.weight || 1;
+      if (cursor <= 0) {
+        return event;
+      }
+    }
+
+    return pool[pool.length - 1];
   }
 
   function pickEvent() {
@@ -1046,16 +1495,22 @@
       return scheduled[0];
     }
 
-    let pool = EVENTS.filter((event) => !event.schedule && canUseEvent(event));
+    const eligible = EVENTS.filter((event) => !event.schedule && canUseEvent(event));
+    const phasePool = eligible.filter((event) => event.phase === state.phaseIndex);
+    const rarePool = phasePool.filter((event) => event.chance && chanceAllows(event));
+    const commonPool = phasePool.filter((event) => !event.chance);
+
+    let pool = rarePool.length > 0 ? rarePool : commonPool;
     if (pool.length === 0) {
-      pool = EVENTS.filter((event) => !event.schedule && event.phase === state.phaseIndex);
+      pool = eligible.filter((event) => !event.chance);
     }
     if (pool.length === 0) {
-      pool = EVENTS.filter((event) => !event.schedule);
+      pool = EVENTS.filter((event) => !event.schedule && event.phase === state.phaseIndex && (!event.condition || event.condition(state)));
+      const lowestCount = Math.min(...pool.map((event) => eventCount(event)));
+      pool = pool.filter((event) => eventCount(event) === lowestCount);
     }
 
-    const index = Math.floor(random() * pool.length);
-    return pool[index];
+    return weightedPick(pool);
   }
 
   function pickEnding() {
@@ -1097,6 +1552,9 @@
     if (!currentEvent.repeatable && !isSeen(currentEvent)) {
       state.seenEvents.push(currentEvent.id);
     }
+
+    state.eventCounts = state.eventCounts || {};
+    state.eventCounts[currentEvent.id] = (state.eventCounts[currentEvent.id] || 0) + 1;
 
     Object.entries(choice.effects || {}).forEach(([key, delta]) => {
       state.stats[key] += delta;
@@ -1193,6 +1651,7 @@
       if (!loaded || !loaded.stats || !Array.isArray(loaded.flags)) {
         return null;
       }
+      loaded.eventCounts = loaded.eventCounts || {};
       return loaded;
     } catch (error) {
       return null;
