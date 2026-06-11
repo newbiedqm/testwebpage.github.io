@@ -9,7 +9,7 @@
   const CHOICE_COLORS = ["#ffe66d", "#7bed9f", "#70d6ff", "#ff9ff3"];
 
   const STAT_META = {
-    cash: { label: "现金", group: "visible", min: -60, max: 220, unit: "¥" },
+    cash: { label: "现金", group: "visible", min: 0, max: 100 },
     trust: { label: "信任", group: "visible", min: 0, max: 100 },
     compliance: { label: "合规", group: "visible", min: 0, max: 100 },
     traffic: { label: "流量", group: "visible", min: 0, max: 100 },
@@ -21,7 +21,7 @@
   };
 
   const INITIAL_STATS = {
-    cash: 70,
+    cash: 48,
     trust: 54,
     compliance: 44,
     traffic: 24,
@@ -1427,6 +1427,97 @@
     });
   }
 
+  function scaleDelta(delta, factor) {
+    if (!delta) {
+      return 0;
+    }
+
+    const scaled = Math.round(delta * factor);
+    if (scaled === 0) {
+      return delta > 0 ? 1 : -1;
+    }
+    return scaled;
+  }
+
+  function balanceDelta(key, delta) {
+    if (key === "cash") {
+      return scaleDelta(delta, delta > 0 ? 0.38 : 0.32);
+    }
+
+    if (key === "stamina") {
+      return scaleDelta(delta, delta > 0 ? 0.82 : 0.55);
+    }
+
+    if (key === "trust" || key === "compliance" || key === "traffic") {
+      return scaleDelta(delta, delta > 0 ? 0.72 : 1.18);
+    }
+
+    return delta;
+  }
+
+  function applyBalancedEffects(effects) {
+    Object.entries(effects || {}).forEach(([key, delta]) => {
+      state.stats[key] += balanceDelta(key, delta);
+    });
+  }
+
+  function applyOperatingPressure(effects) {
+    const cashPush = Math.max(0, effects.cash || 0);
+    const trafficPush = Math.max(0, effects.traffic || 0);
+    const expansionPush = Math.max(0, effects.capitalization || 0);
+    const ambiguityPush = Math.max(0, effects.nameRealityGap || 0);
+
+    if (cashPush + trafficPush >= 14) {
+      state.stats.compliance -= 2;
+      state.stats.trust -= 1;
+    }
+
+    if (trafficPush >= 12) {
+      state.stats.compliance -= 1;
+      state.stats.trust -= 1;
+    }
+
+    if (expansionPush >= 8) {
+      state.stats.trust -= 2;
+      state.stats.compliance -= 1;
+    }
+
+    if (ambiguityPush >= 7) {
+      state.stats.trust -= 2;
+      state.stats.compliance -= 1;
+    }
+
+    if (state.stats.traffic >= 72) {
+      state.stats.trust -= 1;
+      state.stats.compliance -= 1;
+    }
+
+    if (state.stats.nameRealityGap >= 45) {
+      state.stats.trust -= 2;
+    }
+
+    if (state.stats.capitalization >= 60) {
+      state.stats.trust -= 1;
+    }
+  }
+
+  function applyTimeDrift() {
+    const dayGrowth = 0.35 + state.day * 0.035;
+    state.stats.cash += dayGrowth;
+
+    if (state.phaseIndex === 0) {
+      state.stats.cash += 0.7;
+    }
+
+    if (state.stats.traffic >= 68) {
+      state.stats.compliance -= 0.6;
+    }
+
+    if (state.stats.trust <= 32) {
+      state.stats.traffic -= 0.8;
+    }
+  }
+
   function normalizeStat(key, value) {
     const meta = STAT_META[key];
     return ((value - meta.min) / (meta.max - meta.min)) * 100;
@@ -1434,6 +1525,10 @@
 
   function phaseName() {
     return PHASES[state.phaseIndex] || "收摊";
+  }
+
+  function compactTag(tag) {
+    return String(tag || "").replace(/(随机|突发)$/u, "");
   }
 
   function getEventById(id) {
@@ -1556,9 +1651,9 @@
     state.eventCounts = state.eventCounts || {};
     state.eventCounts[currentEvent.id] = (state.eventCounts[currentEvent.id] || 0) + 1;
 
-    Object.entries(choice.effects || {}).forEach(([key, delta]) => {
-      state.stats[key] += delta;
-    });
+    applyBalancedEffects(choice.effects || {});
+    applyOperatingPressure(choice.effects || {});
+    applyTimeDrift();
 
     (choice.flags || []).forEach(addFlag);
 
@@ -1690,8 +1785,8 @@
 
   function statTone(key, value) {
     if (key === "cash") {
-      if (value < 10) return "#f04f78";
-      if (value > 120) return "#2fbd7f";
+      if (value < 28) return "#f04f78";
+      if (value > 70) return "#2fbd7f";
       return "#21c7d9";
     }
 
@@ -1713,6 +1808,23 @@
     return "低";
   }
 
+  function cashAmount() {
+    const day = Math.max(1, state.day || 1);
+    const score = clamp(state.stats.cash, 0, 100);
+    const timeBase = 180 + day * 64 + Math.round(Math.pow(day, 1.18) * 24);
+    return Math.round(timeBase + score * 28);
+  }
+
+  function formatMoney(amount) {
+    if (amount >= 10000) {
+      return `¥${(amount / 10000).toFixed(1)}万`;
+    }
+    if (amount >= 1000) {
+      return `¥${(amount / 1000).toFixed(1)}k`;
+    }
+    return `¥${amount}`;
+  }
+
   function renderStats() {
     const visible = [];
 
@@ -1720,9 +1832,11 @@
       const value = state.stats[key];
       const normalized = clamp(normalizeStat(key, value), 0, 100);
       const tone = statTone(key, value);
-      const displayValue = meta.group === "hidden"
-        ? hiddenLevel(value)
-        : `${meta.unit || ""}${Math.round(value)}`;
+      const displayValue = key === "cash"
+        ? formatMoney(cashAmount())
+        : meta.group === "hidden"
+          ? hiddenLevel(value)
+          : `${meta.unit || ""}${Math.round(value)}`;
       const row = `
         <div class="stat-row">
           <div class="stat-head">
@@ -1751,7 +1865,7 @@
       return;
     }
 
-    dom.eventTag.textContent = currentEvent.tag || PHASE_TAGS[state.phaseIndex];
+    dom.eventTag.textContent = compactTag(currentEvent.tag || PHASE_TAGS[state.phaseIndex]);
     dom.eventTitle.textContent = currentEvent.title;
     dom.eventText.textContent = currentEvent.text;
     setScene(currentEvent.scene || "night");
@@ -1770,7 +1884,7 @@
     wrap.className = "ending-card";
     wrap.innerHTML = `
       <h3>本局账本</h3>
-      <p>现金 ${Math.round(state.stats.cash)}，信任 ${Math.round(state.stats.trust)}，合规 ${Math.round(state.stats.compliance)}，流量 ${Math.round(state.stats.traffic)}，体力 ${Math.round(state.stats.stamina)}。</p>
+      <p>现金 ${formatMoney(cashAmount())}（经营分 ${Math.round(state.stats.cash)}），信任 ${Math.round(state.stats.trust)}，合规 ${Math.round(state.stats.compliance)}，流量 ${Math.round(state.stats.traffic)}，体力 ${Math.round(state.stats.stamina)}。</p>
     `;
     dom.choices.appendChild(wrap);
 
