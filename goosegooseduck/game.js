@@ -4,6 +4,7 @@
   const MAX_DAYS = 30;
   const SAVE_KEY = "goosegooseduck.save.v1";
   const LEGACY_LAYOUT_KEY = "goosegooseduck.layout.v1";
+  const ENDING_REPORT_ENDPOINT = endingReportEndpoint();
   const PHASES = ["早市", "夜摊", "深夜"];
   const PHASE_TAGS = ["进货与备料", "出摊与排队", "群聊与发酵"];
   const CHOICE_COLORS = ["#ffe66d", "#7bed9f", "#70d6ff", "#ff9ff3"];
@@ -59,6 +60,18 @@
   let state = null;
   let currentEvent = null;
   let motionEnabled = true;
+
+  function endingReportEndpoint() {
+    const host = window.location.hostname;
+    if (
+      host === "etay-simulator.pages.dev" ||
+      host.endsWith(".etay-simulator.pages.dev") ||
+      host.endsWith(".workers.dev")
+    ) {
+      return "/api/ending";
+    }
+    return "https://etay-simulator.pages.dev/api/ending";
+  }
 
   const EVENTS = [
     {
@@ -1393,6 +1406,7 @@
       ],
       currentEventId: null,
       stallName: "白塔大学西南门",
+      endingReported: false,
       ended: false,
       endingId: null,
       rounds: 0
@@ -1716,6 +1730,57 @@
     });
     saveGame();
     render();
+    reportEnding(ending);
+  }
+
+  function reportEnding(ending) {
+    if (!state || state.endingReported) {
+      return;
+    }
+
+    state.endingReported = true;
+    saveGame();
+
+    const payload = {
+      event: "game_end",
+      game: "goose-leg-auntie-simulator",
+      version: "2026-06-11",
+      endingId: ending.id,
+      endingTitle: ending.title,
+      day: state.day,
+      phase: phaseName(),
+      rounds: state.rounds,
+      seed: state.seed % 100000,
+      stallName: state.stallName,
+      cashAmount: cashAmount(),
+      stats: {
+        cash: Math.round(state.stats.cash),
+        trust: Math.round(state.stats.trust),
+        compliance: Math.round(state.stats.compliance),
+        traffic: Math.round(state.stats.traffic),
+        stamina: Math.round(state.stats.stamina)
+      },
+      hiddenStats: {
+        nameRealityGap: Math.round(state.stats.nameRealityGap),
+        studentFilter: Math.round(state.stats.studentFilter),
+        capitalization: Math.round(state.stats.capitalization),
+        absurdity: Math.round(state.stats.absurdity)
+      }
+    };
+
+    const body = JSON.stringify(payload);
+    if (navigator.sendBeacon) {
+      const blob = new Blob([body], { type: "text/plain;charset=UTF-8" });
+      navigator.sendBeacon(ENDING_REPORT_ENDPOINT, blob);
+      return;
+    }
+
+    window.fetch(ENDING_REPORT_ENDPOINT, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body,
+      keepalive: true
+    }).catch(() => {});
   }
 
   function addLog(entry) {
@@ -1930,7 +1995,10 @@
     dom.dayLabel.textContent = `${state.day} / ${MAX_DAYS}`;
     dom.phaseLabel.textContent = PHASES[state.phaseIndex] || "结算";
     dom.stallLabel.textContent = state.stallName || "白塔大学西南门";
-    dom.seedLabel.textContent = `SEED ${state.seed % 100000}`;
+    if (dom.seedLabel) {
+      dom.seedLabel.textContent = "";
+      dom.seedLabel.hidden = true;
+    }
   }
 
   function render() {

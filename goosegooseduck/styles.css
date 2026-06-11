@@ -678,6 +678,15 @@ h1 {
   margin-top: 4px;
 }
 
+.privacy-note {
+  margin: 12px auto 0;
+  max-width: 980px;
+  color: rgba(36, 65, 91, 0.78);
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+}
+
 body.reduce-motion *,
 body.reduce-motion *::before,
 body.reduce-motion *::after {
