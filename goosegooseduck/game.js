@@ -3,7 +3,7 @@
 
   const MAX_DAYS = 30;
   const SAVE_KEY = "goosegooseduck.save.v1";
-  const LAYOUT_KEY = "goosegooseduck.layout.v1";
+  const LEGACY_LAYOUT_KEY = "goosegooseduck.layout.v1";
   const PHASES = ["早市", "夜摊", "深夜"];
   const PHASE_TAGS = ["进货与备料", "出摊与排队", "群聊与发酵"];
   const CHOICE_COLORS = ["#ffe66d", "#7bed9f", "#70d6ff", "#ff9ff3"];
@@ -36,7 +36,6 @@
     body: document.body,
     newGameBtn: document.getElementById("new-game-btn"),
     continueBtn: document.getElementById("continue-btn"),
-    layoutButtons: Array.from(document.querySelectorAll(".layout-option")),
     resetBtn: document.getElementById("reset-btn"),
     saveBtn: document.getElementById("save-btn"),
     helpBtn: document.getElementById("help-btn"),
@@ -60,7 +59,6 @@
   let state = null;
   let currentEvent = null;
   let motionEnabled = true;
-  let layoutMode = "auto";
 
   const EVENTS = [
     {
@@ -2001,17 +1999,12 @@
     dom.muteBtn.textContent = motionEnabled ? "动效 ON" : "动效 OFF";
   }
 
-  function applyLayoutMode(mode) {
-    layoutMode = ["auto", "mobile", "desktop"].includes(mode) ? mode : "auto";
-    document.documentElement.classList.toggle("layout-mobile", layoutMode === "mobile");
-    document.documentElement.classList.toggle("layout-desktop", layoutMode === "desktop");
-    dom.body.classList.toggle("layout-mobile", layoutMode === "mobile");
-    dom.body.classList.toggle("layout-desktop", layoutMode === "desktop");
-    dom.layoutButtons.forEach((button) => {
-      button.classList.toggle("is-active", button.dataset.layout === layoutMode);
-      button.setAttribute("aria-pressed", button.dataset.layout === layoutMode ? "true" : "false");
-    });
-    localStorage.setItem(LAYOUT_KEY, layoutMode);
+  function enforceDesktopLayout() {
+    localStorage.removeItem(LEGACY_LAYOUT_KEY);
+    document.documentElement.classList.remove("layout-mobile");
+    document.documentElement.classList.add("layout-desktop");
+    dom.body.classList.remove("layout-mobile");
+    dom.body.classList.add("layout-desktop");
   }
 
   function showHelp() {
@@ -2025,9 +2018,6 @@
   function bindEvents() {
     dom.newGameBtn.addEventListener("click", startNewGame);
     dom.continueBtn.addEventListener("click", continueGame);
-    dom.layoutButtons.forEach((button) => {
-      button.addEventListener("click", () => applyLayoutMode(button.dataset.layout));
-    });
     dom.resetBtn.addEventListener("click", resetGame);
     dom.saveBtn.addEventListener("click", () => {
       addLog({ title: "手动保存", text: "账本已经收进抽屉，刷新页面也能继续。" });
@@ -2060,7 +2050,7 @@
 
   function boot() {
     bindEvents();
-    applyLayoutMode(localStorage.getItem(LAYOUT_KEY) || "auto");
+    enforceDesktopLayout();
     updateContinueButton();
     const loaded = loadGame();
     if (loaded) {
